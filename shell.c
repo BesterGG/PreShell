@@ -3,30 +3,35 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/wait.h>
-int main(int argc, char **argv)
+int main(void)
 {
-	(void) argc;
-	char *str = 0;
+	char *str = NULL;
 	size_t n = 0;
 	int status;
-	char *token;
+	char *token, *backup_token;
 	char *delim = " \t\n";
 	char *alambre[] = {"", NULL};
+	char *p;
+
+	p = str;
 	printf("$");
 	while (getline (&str, &n, stdin) != -1)
 	{
-		token = strtok(str, delim);
-		printf("your lines is: %s", token);
-		if (execve(token, alambre, NULL) == -1)
+		backup_token = strdup(str);
+		token = strtok(backup_token, delim);
+		if(token && fork() == 0)
 		{
-			perror("Error:");
+			if (execve(backup_token, alambre, NULL) == -1)
+				perror("Error:");
+			free(str);
+			free(backup_token);
+			break;
 		}
 		else
-		{
 			wait(&status);
-			printf("end of child\n");
-		}
+		printf("$");
+		free(str);
+		free(backup_token);
 	}
-	free(str);
 	return (0);
 }
