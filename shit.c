@@ -11,6 +11,7 @@ int main(void)
 	char *token, *backup_token;
 	char *delim = " \t\n";
 	char *alambre[] = {"", NULL};
+	char *p;
 
 	printf("$");
 	while (getline (&str, &n, stdin) != -1)
@@ -20,11 +21,9 @@ int main(void)
 		if(token && fork() == 0)
 		{
 			if (execve(backup_token, alambre, NULL) == -1)
-			{
-			perror("Error:");
+				perror("Error:");
 			free(str);
 			free(backup_token);
-			}
 			break;
 		}
 		else
